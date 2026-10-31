@@ -7,6 +7,8 @@ const btnPrimary =
 const btnGhost =
   "inline-flex items-center justify-center rounded-xl border border-white/10 px-4 py-2.5 text-sm text-mist hover:bg-white/5";
 
+export const dynamic = "force-dynamic";
+
 const STEPS = [
   ["1", "Cadastro", "A empresa solicita acesso ou a GB Systems cria o workspace já liberado."],
   ["2", "Aprovação", "No painel da GB, você aprova, escolhe o plano e libera o login do cliente."],

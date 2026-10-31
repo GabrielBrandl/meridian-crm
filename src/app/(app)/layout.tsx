@@ -3,6 +3,8 @@ import { getSession } from "@/lib/auth";
 import { ensureBoot } from "@/lib/seed";
 import { Shell } from "@/components/Shell";
 
+export const dynamic = "force-dynamic";
+
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   ensureBoot();
   const user = await getSession();

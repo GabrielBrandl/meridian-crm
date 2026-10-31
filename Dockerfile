@@ -7,8 +7,8 @@ FROM node:22-bookworm-slim AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-ENV NEXT_TELEMETRY_DISABLED=1
-RUN npm run build
+ENV NEXT_TELEMETRY_DISABLED=1 NODE_OPTIONS=--experimental-sqlite DATABASE_PATH=/tmp/meridian-build.db
+RUN mkdir -p /tmp && npm run build
 
 FROM node:22-bookworm-slim
 WORKDIR /app
