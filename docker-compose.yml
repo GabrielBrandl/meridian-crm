@@ -1,0 +1,52 @@
+services:
+  meridian:
+    build: .
+    environment:
+      JWT_SECRET: ${JWT_SECRET:-troque-esta-chave-em-producao}
+      N8N_WEBHOOK_URL: ${N8N_WEBHOOK_URL:-}
+      N8N_SHARED_SECRET: ${N8N_SHARED_SECRET:-meridian-n8n-secret}
+      N8N_CALLBACK_SECRET: ${N8N_CALLBACK_SECRET:-meridian-n8n-secret}
+      DATABASE_PATH: /app/data/meridian.db
+      EVOLUTION_URL: ${EVOLUTION_URL:-http://evolution:8080}
+      EVOLUTION_API_KEY: ${EVOLUTION_API_KEY:-meridian-evo-key}
+      APP_PUBLIC_URL: ${APP_PUBLIC_URL:-}
+    volumes:
+      - meridian-data:/app/data
+    restart: unless-stopped
+    depends_on:
+      - evolution
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: evolution
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-evolution}
+      POSTGRES_DB: evolution
+    volumes:
+      - evo-postgres:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+
+  evolution:
+    image: evoapicloud/evolution-api:v2.3.7
+    environment:
+      SERVER_URL: ${EVOLUTION_SERVER_URL:-http://evolution:8080}
+      AUTHENTICATION_API_KEY: ${EVOLUTION_API_KEY:-meridian-evo-key}
+      DATABASE_ENABLED: "true"
+      DATABASE_PROVIDER: postgresql
+      DATABASE_CONNECTION_URI: postgresql://evolution:${POSTGRES_PASSWORD:-evolution}@postgres:5432/evolution?schema=public
+      CACHE_REDIS_ENABLED: "true"
+      CACHE_REDIS_URI: redis://redis:6379
+      CACHE_REDIS_PREFIX_KEY: evolution
+      QRCODE_LIMIT: "30"
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+
+volumes:
+  meridian-data:
+  evo-postgres:

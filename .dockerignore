@@ -1,0 +1,13 @@
+node_modules
+.next
+data
+*.db
+.git
+_brand_preview
+tmp
+tmp-easypanel
+playwright-report
+test-results
+*.md
+.env
+.env.local

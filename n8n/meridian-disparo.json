@@ -1,0 +1,172 @@
+{
+  "name": "Meridian · Disparo WhatsApp",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "meridian-send",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "wh-send",
+      "name": "Webhook envio",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "meridian-send"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "secret",
+              "leftValue": "={{$json.secret || $headers['x-meridian-secret']}}",
+              "rightValue": "={{$env.MERIDIAN_SECRET}}",
+              "operator": { "type": "string", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-secret",
+      "name": "Segredo válido?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.EVOLUTION_URL}}/message/sendText/{{$env.EVOLUTION_INSTANCE}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [{ "name": "apikey", "value": "={{$env.EVOLUTION_APIKEY}}" }]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ number: $json.phone, text: $json.message }) }}",
+        "options": {}
+      },
+      "id": "evo-send",
+      "name": "Evolution sendText",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [740, 220]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.MERIDIAN_URL}}/api/webhooks/n8n/status",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [{ "name": "x-meridian-secret", "value": "={{$env.MERIDIAN_SECRET}}" }]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ recipientId: $('Webhook envio').item.json.recipientId, phone: $('Webhook envio').item.json.phone, status: 'sent', provider_id: $json.key?.id || $json.messageId || '' }) }}",
+        "options": {}
+      },
+      "id": "cb-status",
+      "name": "Callback status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1000, 220]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, provider_id: $json.provider_id || 'n8n' } }}"
+      },
+      "id": "respond",
+      "name": "Responder CRM",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1240, 220]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{ \"ok\": false, \"error\": \"secret\" }",
+        "options": { "responseCode": 401 }
+      },
+      "id": "deny",
+      "name": "Enviar 401",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [740, 420]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "meridian-inbound",
+        "options": {}
+      },
+      "id": "wh-in",
+      "name": "Webhook inbound Evolution",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 640],
+      "webhookId": "meridian-inbound"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.MERIDIAN_URL}}/api/webhooks/n8n/inbound",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [{ "name": "x-meridian-secret", "value": "={{$env.MERIDIAN_SECRET}}" }]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ phone: $json.data?.key?.remoteJid || $json.phone, name: $json.data?.pushName, message: $json.data?.message?.conversation || $json.data?.message?.extendedTextMessage?.text || $json.message }) }}"
+      },
+      "id": "cb-in",
+      "name": "Callback inbox",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [520, 640]
+    },
+    {
+      "parameters": { "rule": { "interval": [{ "field": "minutes", "minutesInterval": 1 }] } },
+      "id": "cron",
+      "name": "Tick 1 min",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 880]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.MERIDIAN_URL}}/api/dispatch/tick",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [{ "name": "x-meridian-secret", "value": "={{$env.MERIDIAN_SECRET}}" }]
+        }
+      },
+      "id": "tick",
+      "name": "Processar fila",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [520, 880]
+    }
+  ],
+  "connections": {
+    "Webhook envio": { "main": [[{ "node": "Segredo válido?", "type": "main", "index": 0 }]] },
+    "Segredo válido?": {
+      "main": [
+        [{ "node": "Evolution sendText", "type": "main", "index": 0 }],
+        [{ "node": "Enviar 401", "type": "main", "index": 0 }]
+      ]
+    },
+    "Evolution sendText": { "main": [[{ "node": "Callback status", "type": "main", "index": 0 }]] },
+    "Callback status": { "main": [[{ "node": "Responder CRM", "type": "main", "index": 0 }]] },
+    "Webhook inbound Evolution": { "main": [[{ "node": "Callback inbox", "type": "main", "index": 0 }]] },
+    "Tick 1 min": { "main": [[{ "node": "Processar fila", "type": "main", "index": 0 }]] }
+  },
+  "active": true,
+  "settings": { "executionOrder": "v1" },
+  "pinData": {},
+  "meta": { "templateCredsSetupCompleted": true }
+}
