@@ -1,7 +1,9 @@
 # Deploy Meridian no EasyPanel
 
+Repositório: https://github.com/GabrielBrandl/meridian-crm
+
 1. Crie um projeto **meridian**.
-2. App tipo **Compose**, repositório desta pasta, arquivo `docker-compose.yml`.
+2. App tipo **Compose**, repositório Git acima, arquivo `docker-compose.yml`. Para repo privado, cole a chave SSH do serviço como deploy key no GitHub.
 3. Variáveis:
    - `JWT_SECRET` — chave longa e exclusiva
    - `EVOLUTION_API_KEY` — mesma chave no app e na Evolution
