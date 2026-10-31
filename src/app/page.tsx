@@ -39,7 +39,7 @@ export default async function Home() {
       <main className="mx-auto max-w-6xl px-6 pb-20">
         <section className="mt-10 max-w-3xl">
           <p className="text-[11px] uppercase tracking-[0.28em] text-lilac">Meridian CRM · GB Systems</p>
-          <h1 className="mt-4 font-display text-4xl font-extrabold leading-tight md:text-6xl">
+          <h1 className="mt-4 font-display text-4xl font-bold leading-tight md:text-5xl">
             CRM comercial de WhatsApp para a sua operação vender mais.
           </h1>
           <p className="mt-5 max-w-2xl text-lg text-mist/75">
@@ -53,7 +53,7 @@ export default async function Home() {
         <section className="mt-16 grid gap-4 md:grid-cols-4">
           {STEPS.map(([step, title, text]) => (
             <article key={step} className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-              <p className="font-display text-2xl font-extrabold text-lilac">{step}</p>
+              <p className="font-display text-2xl font-bold text-lilac">{step}</p>
               <h2 className="mt-2 font-display text-lg font-bold">{title}</h2>
               <p className="mt-2 text-sm text-mist/70">{text}</p>
             </article>
@@ -72,7 +72,7 @@ export default async function Home() {
           {PLANS.map(([name, limit, text]) => (
             <article key={name} className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
               <p className="text-xs uppercase tracking-widest text-lilac">{name}</p>
-              <p className="mt-2 font-display text-2xl font-extrabold">{limit}</p>
+              <p className="mt-2 font-display text-2xl font-bold">{limit}</p>
               <p className="mt-2 text-sm text-mist/70">{text}</p>
             </article>
           ))}

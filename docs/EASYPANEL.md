@@ -1,5 +1,7 @@
 # Deploy Meridian no EasyPanel
 
+Produção: https://meridian.g41rad.easypanel.host  
+Evolution: https://evolution.g41rad.easypanel.host  
 Repositório: https://github.com/GabrielBrandl/meridian-crm
 
 1. Crie um projeto **meridian**.
