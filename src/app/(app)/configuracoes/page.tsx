@@ -47,7 +47,7 @@ export default function SettingsPage() {
   if (!settings) return <p className="text-mist/60">Carregando conexões...</p>;
 
   function set<K extends keyof Settings>(key: K, value: Settings[K]) {
-    setSettings({ ...settings, [key]: value });
+    setSettings((current) => (current ? { ...current, [key]: value } : current));
   }
 
   return (

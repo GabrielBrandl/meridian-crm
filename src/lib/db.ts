@@ -57,15 +57,15 @@ export function resetDbCache() {
 }
 
 export function all<T>(sql: string, params: unknown[] = []) {
-  return getDb().prepare(sql).all(...params) as T[];
+  return getDb().prepare(sql).all(...(params as never[])) as T[];
 }
 
 export function one<T>(sql: string, params: unknown[] = []) {
-  return (getDb().prepare(sql).get(...params) as T | undefined) ?? null;
+  return (getDb().prepare(sql).get(...(params as never[])) as T | undefined) ?? null;
 }
 
 export function run(sql: string, params: unknown[] = []) {
-  return getDb().prepare(sql).run(...params);
+  return getDb().prepare(sql).run(...(params as never[]));
 }
 
 export function tx<T>(fn: (db: SqliteDb) => T): T {
